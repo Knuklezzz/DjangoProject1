@@ -13,34 +13,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from allauth.account import views as allauth_views
+from allauth.socialaccount.providers.vk.views import oauth2_callback, oauth2_login
 from django.contrib import admin
-from django.urls import path, re_path
-from firstapp import views
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
-
-# urlpatterns = [
-#     path('', views.index, name='home'),
-#     path('admin/', admin.site.urls),
-# ]
-#
-# urlpatterns = [
-#     path('', views.index),
-#     path('about', views.about),
-#     path('contact', views.contact),
-# ]
+from firstapp import views
 
 urlpatterns = [
-    path('', views.index),
-    path('about/', TemplateView.as_view(template_name="firstapp/about.html")),
-    path('contact/', TemplateView.as_view(template_name="firstapp/contact.html",extra_context = {"work":"Конструирование"})),
-    path('details', views.details),
-    # re_path(r'^about', views.about),
-    # re_path(r'^contact', views.contact),
-    # re_path(r'^products/$', views.products),
-    # re_path(r'^products/(?P<productid>\d+)/', views.products),
-    # re_path(r'^users/(?P<id>\d+)/(?P<name>\D+)/', views.users)
-    # path('products/', views.products),
-    path('products/<int:productid>/', views.products),
-    path('users/', views.users),
-    # path('users/<int:id>/<name>/', views.users)
+    path("admin/", admin.site.urls),
+    path("login/", allauth_views.login, name="account_login"),
+    path("login/vk/", oauth2_login, name="vk_login"),
+    re_path(r"^login/vk/callback/$", oauth2_callback, name="vk_callback"),
+    path("signup/", views.signup, name="account_signup"),
+    path("logout/", views.logout_view, name="account_logout"),
+    path("about/", TemplateView.as_view(template_name="firstapp/about.html")),
+    path("", views.index, name="order_create"),
+    path("orders/", views.orders_list, name="order_list"),
+    path("orders/<int:order_id>/", views.order_detail, name="order_detail"),
 ]
+
+urlpatterns += [path("social/", include("allauth.socialaccount.urls"))]

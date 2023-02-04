@@ -1,38 +1,69 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
-from .forms import UserForm
+from django.contrib.auth import logout
+from django.http import (
+    HttpResponse,
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+)
+from django.shortcuts import get_object_or_404, render
+
+from .forms import OrderItemFormset
+from .models import Order, OrderItem
+
 
 def index(request):
-    form = UserForm()
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect("/login/")
+    formset = OrderItemFormset(request.POST or None, prefix="form")
     if request.method == "POST":
-        #name = request.POST.get("name")
-        #age = request.POST.get("age")
-        form = UserForm(request.POST)
-        if form.is_valid():
-            article = form.cleaned_data['article']
-            output = "<h2>Позиция 1</h2><h3>Артикул - {0}</h3>".format(article)
-            return HttpResponse(output)
+        if formset.is_valid():
+            order = Order.objects.create(user=request.user)
+            for form in formset:
+                OrderItem.objects.create(order=order, **form.cleaned_data)
+            order.calculate_total_price()
+            return render(
+                request, "firstapp/index.html", {"formset": OrderItemFormset()}
+            )
+    return render(request, "firstapp/index.html", {"formset": formset})
 
-    return render(request, "firstapp/index.html", {"form": form})
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect("/")
+
+
+def signup(request):
+    return HttpResponseRedirect("/login/")
+
+
+def success_login(request):
+    return HttpResponseRedirect("/")
+
 
 def about(request):
     return HttpResponse("About")
 
+
 def contact(request):
     return HttpResponseRedirect("/about")
+
 
 def details(request):
     return HttpResponsePermanentRedirect("/")
 
-def products(request, productid):
-    category = request.GET.get("cat", "")
-    output = "<h2>Product № {0} Категория: {1}</h2>".format(productid, category)
-    return HttpResponse(output)
 
-def users(request):
-    id = request.GET.get("id", 1)
-    name = request.GET.get("name", "Максим")
-    output = "<h2>User</h2><h3>id: {0} Name: {1}</h3>".format(id,name)
-    return HttpResponse(output)
+def orders_list(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect("/login/")
+    orders = Order.objects.filter(user=request.user)
+    return render(
+        request,
+        "firstapp/orders_list.html",
+        {"orders": orders, "orders_sum": sum([order.total_price for order in orders])},
+    )
 
-# Create your views here.
+
+def order_detail(request, order_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect("/login/")
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, "firstapp/order_detail.html", {"order": order})

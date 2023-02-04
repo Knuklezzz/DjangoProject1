@@ -2,29 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Форма Django!</title>
-    <style>
-    .alert{color: red}
-    </style>
+    <title>Form Template</title>
 </head>
 <body>
-<h2>Присвоение стилей полям</h2>
-    <form method="POST" novalidate>
-        {% csrf_token %}
-        <div class="form-group">
-            {% for field in form %}
-                <div>{{field.label_tag}}</div>
-                <div>{{field}}</div>
-                {% if field.errors %}
-                    {% for error in field.errors %}
-                        <div class="alert alert-danger">
-                            {{error}}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-        </div>
-        <input type="submit" value="Отправить">
-    </form>
+<h2>Form with Add/Delete Row Buttons</h2>
+<a href="{% url 'order_list' %}" class="btn btn-primary">See all orders</a>
+<form method="post">
+  {% csrf_token %}
+  {{ formset.management_form }}
+  {% for form in formset %}
+    <div class="form-row">
+      {{ form.as_p }}
+      <button type="button" class="btn btn-danger remove-form-row">Remove</button>
+    </div>
+  {% endfor %}
+  <button type="button" class="btn btn-success add-form-row">Add Row</button>
+  <button type="submit">Submit</button>
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let formSet = document.querySelector("form");
+  let addFormRowButton = formSet.querySelector(".add-form-row");
+  let formRowTemplate = document.querySelector("#empty-form-row").innerHTML;
+  let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+
+  addFormRowButton.addEventListener("click", function () {
+    let formIdx = totalForms ? totalForms.value : 0;
+    let formRow = formRowTemplate.replace(/__prefix__/g, formIdx);
+    let formRowNode = document.createRange().createContextualFragment(formRow);
+    formSet.appendChild(formRowNode);
+    if (totalForms) {
+      totalForms.value = parseInt(formIdx) + 1;
+    }
+  });
+
+  formSet.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-row")) {
+      event.target.closest(".form-row").remove();
+    }
+  });
+});
+
+</script>
+<div id="empty-form-row" style="display:none;">
+  <div class="form-row">
+    {{ formset.empty_form.as_p|safe }}
+    <button type="button" class="btn btn-danger remove-form-row">Remove</button>
+  </div>
+</div>
 </body>
 </html>
