@@ -1,54 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <link href="https://fonts.googleapis.com/css2?family=Liniksans:wght@400;700&display=swap" rel="stylesheet">
+  </head>
     <meta charset="utf-8">
     <title>Form Template</title>
+    <style>
+        @font-face {
+            font-family: "Liniksans";
+            src: url('/static/fonts/Liniksans/LinikSans-Regular.ttf') format("truetype");
+        }
+        input{
+            font-family: Liniksans,sans-serif;
+        }
+        button{
+            font-family: Liniksans,sans-serif;
+        }
+        .form{
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-row {
+            background-color: white;
+            box-sizing: border-box;
+            max-width: 840px;
+            min-width: 840px;
+            display:flex;
+            justify-content: space-between;
+            padding: 12px;
+            height: 80% ;
+        }
+        .remove-form-row{
+            height: 20px;
+            width: 20px;
+            margin: 5px;
+            border: none;
+            background:none;
+            opacity: 0.4;
+            transition: 0.2s;
+        }
+        .remove-form-row:hover{
+            opacity: 1;
+        }
+        .form-actions {
+            width: 270px;
+            background-color: white;
+            padding: 12px;
+        }
+        body{
+            margin:0;
+            font-family: Liniksans,sans-serif;
+        }
+          .main {
+            max-width: 1170px;
+              margin: auto;
+              background-color: #f7f7f7;
+              min-height: 200px;
+              height: 100%;
+              padding: 12px;
+          }
+          header {
+            max-width: 100%;
+            background: rgb(117,236,237);
+            background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(158,232,242,1) 100%);
+            padding: 20px;
+            text-align: center;
+              font-size: 19px;
+          }
+
+          nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+          }
+
+          nav a {
+            font-weight: 350;
+            font-feature-settings: "frac","cv05","cv11","calt","kern";
+            color: black;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: inline-block;
+            position: relative;
+              transition: 0.3s;
+          }
+
+          nav a::after {
+           content: '';
+          position: absolute;
+          width: 100%;
+          transform: scaleX(0);
+          height: 3px;
+          bottom: 0;
+          left: 0;
+          background-color: #0087ca;
+          /*transform-origin: bottom right;*/
+          transition: transform 0.25s ease-out;opacity: 1;
+          }
+          nav a:hover::after {
+              transform: scaleX(1);
+              /*transform-origin: bottom left;*/
+
+          }
+          .form-row input{width: 120px;height: 30px; border-radius:6px}
+
+           footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+  footer a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 10px;
+  }
+
+    </style>
 </head>
 <body>
-<h2>Form with Add/Delete Row Buttons</h2>
-<a href="{% url 'order_list' %}" class="btn btn-primary">See all orders</a>
-<form method="post">
-  {% csrf_token %}
-  {{ formset.management_form }}
-  {% for form in formset %}
-    <div class="form-row">
-      {{ form.as_p }}
-      <button type="button" class="btn btn-danger remove-form-row">Remove</button>
-    </div>
-  {% endfor %}
-  <button type="button" class="btn btn-success add-form-row">Add Row</button>
-  <button type="submit">Submit</button>
-</form>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  let formSet = document.querySelector("form");
-  let addFormRowButton = formSet.querySelector(".add-form-row");
-  let formRowTemplate = document.querySelector("#empty-form-row").innerHTML;
-  let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+    <header>
+      <nav>
+        <ul>
+          <li><a href="#home">Homelll</a></li>
+          <li><a href="#about">О нас</a></li>
+          <li><a href="#services">Услуги</a></li>
+          <li><a href="#contact">Контакты</a></li>
+          <li><a href="{% url 'order_list' %}" class="btn btn-primary">Мои заказы</a></li>
+        </ul>
+      </nav>
+    </header>
 
-  addFormRowButton.addEventListener("click", function () {
-    let formIdx = totalForms ? totalForms.value : 0;
-    let formRow = formRowTemplate.replace(/__prefix__/g, formIdx);
-    let formRowNode = document.createRange().createContextualFragment(formRow);
-    formSet.appendChild(formRowNode);
-    if (totalForms) {
-      totalForms.value = parseInt(formIdx) + 1;
-    }
-  });
+    <div class = main>
+   <form method="post" novalidate> <div class="form">
+        <div class="form-row">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            {% for form in formset %}
+                 {% for field in form %}
+                    {{ field }}
+                    <div class = "form-errors">{{field.errors}}</div>
+                {% endfor %}
+            {% endfor %}
+            <!--<button type="button" class="btn btn-danger remove-form-row">✖</button>-->
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-success add-form-row">+</button>
+            <button type="submit">Отправить заказ</button>
+        </div>
+    </div></form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let formSet = document.querySelector("form");
+            let addFormRowButton = formSet.querySelector(".add-form-row");
+            let formRowTemplate = document.querySelector("#empty-form-row").innerHTML;
+            let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+             addFormRowButton.addEventListener("click", function () {
+            let formIdx = totalForms ? totalForms.value : 0;
+            let formRow = formRowTemplate.replace(/__prefix__/g, formIdx);
+            let formRowNode = document.createRange().createContextualFragment(formRow);
+            formSet.appendChild(formRowNode);
+            if (totalForms) {
+                totalForms.value = parseInt(formIdx) + 1;
+            }
+        });
 
-  formSet.addEventListener("click", function (event) {
-    if (event.target.classList.contains("remove-form-row")) {
-      event.target.closest(".form-row").remove();
-    }
-  });
-});
+        formSet.addEventListener("click", function (event) {
+            if (event.target.classList.contains("remove-form-row")) {
+                if (formIdx !== 0){
+                    event.target.closest(".form-row").remove();}
+            }
+        });
+    });
 
 </script>
 <div id="empty-form-row" style="display:none;">
-  <div class="form-row">
-    {{ formset.empty_form.as_p|safe }}
-    <button type="button" class="btn btn-danger remove-form-row">Remove</button>
-  </div>
+    <div class="form-row">
+        {% for empty_form in formset %}
+                 {% for field in empty_form %}
+                    {{ field }}
+                 {% endfor %}
+        {% endfor %}
+        <button type="button" class="btn btn-danger remove-form-row">✖</button>
+    </div>
 </div>
+</div>
+<footer>
+  <div class="footer-container">
+    <p>Copyright © 2023 Company Name</p>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
 </body>
-</html>
+

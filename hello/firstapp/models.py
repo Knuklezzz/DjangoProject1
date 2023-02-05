@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 
 
+
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
@@ -34,8 +35,8 @@ class Order(models.Model):
 class OrderItem(models.Model):
     id = models.AutoField(primary_key=True)
     order = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="items")
+    article = models.CharField(max_length=20)
     quantity = models.IntegerField()
-    article = models.CharField(max_length=255)
     size = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
