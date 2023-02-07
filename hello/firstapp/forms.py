@@ -3,7 +3,8 @@ from django.forms import BaseFormSet
 from firstapp.models import OrderItem
 
 
-class OrderItemForm(forms.ModelForm):
+class OrderItemForm(forms.Form):
+
     article = forms.CharField(
         max_length=20,
         label=False,
@@ -26,9 +27,6 @@ class OrderItemForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"placeholder": "Цена"}),
     )
 
-    class Meta:
-        model = OrderItem
-        exclude = ["order", "id"]
 
 
 class RequiredFormSet(BaseFormSet):
@@ -37,7 +35,6 @@ class RequiredFormSet(BaseFormSet):
         for form in self.forms:
             form.empty_permitted = False
             form.use_required_attribute = True
-
 
 OrderItemFormset = forms.formset_factory(
     OrderItemForm, extra=1, formset=RequiredFormSet

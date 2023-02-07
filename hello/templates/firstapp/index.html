@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> {% block head %}{% endblock head %}
    <link href="https://fonts.googleapis.com/css2?family=Liniksans:wght@400;700&display=swap" rel="stylesheet">
   </head>
     <meta charset="utf-8">
-    <title>Form Template</title>
+    {% block title %}
+    <title>Текущий заказ</title>
+    {% endblock title %}
     <style>
+        a:-webkit-any-link {
+             cursor: pointer;
+            text-decoration: none;
+        }
         @font-face {
             font-family: "Liniksans";
             src: url('/static/fonts/Liniksans/LinikSans-Regular.ttf') format("truetype");
@@ -20,6 +26,7 @@
             display: flex;
             justify-content: space-between;
         }
+
         .form-row {
             background-color: white;
             box-sizing: border-box;
@@ -29,6 +36,20 @@
             justify-content: space-between;
             padding: 12px;
             height: 80% ;
+        }
+
+        .add-form-row{
+            height: 20px;
+            width: 20px;
+            margin: 5px;
+            border: none;
+            background:none;
+            opacity: 0.4;
+            transition: 0.2s;
+        }
+
+        .add-form-row:hover{
+            opacity: 1;
         }
         .remove-form-row{
             height: 20px;
@@ -84,25 +105,12 @@
             padding: 10px 20px;
             display: inline-block;
             position: relative;
-              transition: 0.3s;
+              transition: 0.2s;
           }
 
-          nav a::after {
-           content: '';
-          position: absolute;
-          width: 100%;
-          transform: scaleX(0);
-          height: 3px;
-          bottom: 0;
-          left: 0;
-          background-color: #0087ca;
-          /*transform-origin: bottom right;*/
-          transition: transform 0.25s ease-out;opacity: 1;
-          }
-          nav a:hover::after {
-              transform: scaleX(1);
+          nav a:hover {
+              color: teal;
               /*transform-origin: bottom left;*/
-
           }
           .form-row input{width: 120px;height: 30px; border-radius:6px}
 
@@ -128,12 +136,13 @@
           <li><a href="#about">О нас</a></li>
           <li><a href="#services">Услуги</a></li>
           <li><a href="#contact">Контакты</a></li>
-          <li><a href="{% url 'order_list' %}" class="btn btn-primary">Мои заказы</a></li>
+          <li><a href="{% url 'order_list' %}" >Мои заказы</a></li>
         </ul>
       </nav>
     </header>
 
     <div class = main>
+        {% block content %}
    <form method="post" novalidate> <div class="form">
         <div class="form-row">
             {% csrf_token %}
@@ -144,10 +153,9 @@
                     <div class = "form-errors">{{field.errors}}</div>
                 {% endfor %}
             {% endfor %}
-            <!--<button type="button" class="btn btn-danger remove-form-row">✖</button>-->
+            <button type="button" class="add-form-row">✚</button>
         </div>
         <div class="form-actions">
-            <button type="button" class="btn btn-success add-form-row">+</button>
             <button type="submit">Отправить заказ</button>
         </div>
     </div></form>
@@ -169,8 +177,7 @@
 
         formSet.addEventListener("click", function (event) {
             if (event.target.classList.contains("remove-form-row")) {
-                if (formIdx !== 0){
-                    event.target.closest(".form-row").remove();}
+                    event.target.closest(".form-row").remove();
             }
         });
     });
@@ -185,7 +192,7 @@
         {% endfor %}
         <button type="button" class="btn btn-danger remove-form-row">✖</button>
     </div>
-</div>
+</div>{% endblock content %}
 </div>
 <footer>
   <div class="footer-container">
