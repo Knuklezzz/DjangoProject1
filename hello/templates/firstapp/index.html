@@ -185,11 +185,9 @@
 </script>
 <div id="empty-form-row" style="display:none;">
     <div class="form-row">
-        {% for empty_form in formset %}
-                 {% for field in empty_form %}
-                    {{ field }}
-                 {% endfor %}
-        {% endfor %}
+             {% for field in formset.empty_form %}
+                {{ field }}
+             {% endfor %}
         <button type="button" class="btn btn-danger remove-form-row">✖</button>
     </div>
 </div>{% endblock content %}
