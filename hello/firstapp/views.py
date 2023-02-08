@@ -18,6 +18,7 @@ def index(request):
         if formset.is_valid():
             order = Order.objects.create(user=request.user)
             for form in formset:
+                print(form)
                 if form.is_valid():
                     OrderItem.objects.create(order=order, **form.cleaned_data)
                 else:
